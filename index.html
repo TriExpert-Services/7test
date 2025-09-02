@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VPS Triexpert Services</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00f7ff;
+            text-shadow: 0 0 10px rgba(0, 247, 255, 0.7);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #00ff80;
+        }
+
+        .floating-box {
+            background: rgba(13, 17, 33, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 0 25px rgba(0, 247, 255, 0.5),
+                        0 0 50px rgba(0, 247, 255, 0.3),
+                        inset 0 0 15px rgba(0, 247, 255, 0.2);
+            border: 1px solid rgba(0, 247, 255, 0.3);
+            position: relative;
+            overflow: hidden;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotateX(0deg); }
+            50% { transform: translateY(-10px) rotateX(5deg); }
+        }
+
+        .floating-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 247, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            animation: shine 6s infinite;
+            z-index: -1;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            20% { left: 100%; }
+            100% { left: 100%; }
+        }
+
+        h2 {
+            color: #00f7ff;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 247, 255, 0.7);
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(0, 247, 255, 0.3);
+            border-radius: 10px;
+            outline: none;
+            color: #fff;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            border-color: #00f7ff;
+            box-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .input-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .input-group label {
+            display: block;
+            color: #00f7ff;
+            margin-bottom: 8px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(45deg, #00f7ff, #0066ff);
+            border: none;
+            border-radius: 10px;
+            color: #0a0e23;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #00d0d9, #0055dd);
+            box-shadow: 0 0 20px rgba(0, 247, 255, 0.7);
+            transform: translateY(-2px);
+        }
+        
+        /* Contenedor de la respuesta y estilos de la caja */
+        .response-container {
+            width: 100%;
+            max-width: 600px;
+            margin-top: 20px;
+            animation: fadeIn 0.5s ease-in-out forwards;
+        }
+        
+        .response-box {
+            background: rgba(13, 17, 33, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 0 25px rgba(0, 255, 128, 0.5),
+                        0 0 50px rgba(0, 255, 128, 0.3),
+                        inset 0 0 15px rgba(0, 255, 128, 0.2);
+            border: 1px solid rgba(0, 255, 128, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: none; /* Se mostrará con JavaScript */
+        }
+
+        .response-box.error {
+            box-shadow: 0 0 25px rgba(255, 0, 0, 0.5),
+                        0 0 50px rgba(255, 0, 0, 0.3),
+                        inset 0 0 15px rgba(255, 0, 0, 0.2);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+        }
+        
+        .response-box h3 {
+            color: #00ff80;
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(0, 255, 128, 0.7);
+        }
+        
+        .response-box.error h3 {
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255, 0, 0, 0.7);
+        }
+
+        .json-response {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(0, 255, 128, 0.2);
+            color: #00ff80;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .response-box.error .json-response {
+            border: 1px solid rgba(255, 0, 0, 0.2);
+            color: #ff0000;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(0, 247, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00f7ff;
+            animation: spin 1s ease-in-out infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading p {
+            color: #00f7ff;
+            margin-top: 15px;
+            font-size: 16px;
+        }
+
+        .glow-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 247, 255, 0.2) 0%, transparent 70%);
+            z-index: -1;
+        }
+
+        .circle1 {
+            width: 200px;
+            height: 200px;
+            top: -50px;
+            left: -50px;
+        }
+
+        .circle2 {
+            width: 150px;
+            height: 150px;
+            bottom: -30px;
+            right: -30px;
+        }
+
+        .success-checkmark {
+            display: none;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .checkmark {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: block;
+            stroke-width: 5;
+            stroke: #00ff80;
+            stroke-miterlimit: 10;
+            box-shadow: 0 0 15px #00ff80;
+            margin: 0 auto;
+            animation: fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .9s both;
+        }
+
+        .checkmark-circle {
+            stroke-dasharray: 166;
+            stroke-dashoffset: 166;
+            stroke-width: 5;
+            stroke-miterlimit: 10;
+            stroke: #00ff80;
+            fill: none;
+            animation: stroke .6s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards;
+        }
+
+        .checkmark-check {
+            transform-origin: 50% 50%;
+            stroke-dasharray: 48;
+            stroke-dashoffset: 48;
+            animation: stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) .8s forwards;
+        }
+
+        @keyframes stroke {
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes scale {
+            0%, 100% { transform: none; }
+            50% { transform: scale3d(1.1, 1.1, 1); }
+        }
+
+        @keyframes fill {
+            100% { box-shadow: 0 0 20px #00ff80; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .floating-box, .response-box {
+                width: 95%;
+                padding: 25px;
+            }
+
+            h2 {
+                font-size: 24px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-circle circle1"></div>
+    <div class="glow-circle circle2"></div>
+
+    <div class="container">
+        <div class="header">
+            <h1>VPS Triexpert Services</h1>
+            <p>7 días de prueba gratuita</p>
+        </div>
+
+        <!-- Formulario de registro -->
+        <div class="floating-box">
+            <h2>Registro</h2>
+            <form id="registroForm">
+                <div class="input-group">
+                    <label for="nombre">Nombre Completo</label>
+                    <input type="text" id="nombre" name="nombre" placeholder="Ingresa tu nombre completo" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="telefono">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" placeholder="Ingresa tu número de teléfono" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" placeholder="Ingresa tu correo electrónico" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Crea una contraseña segura" required>
+                </div>
+
+                <input type="hidden" name="dato_extra" value="prueba">
+
+                <button type="submit">Registrarse</button>
+            </form>
+
+            <!-- Indicador de carga -->
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>Procesando registro...</p>
+            </div>
+
+            <!-- Checkmark de éxito -->
+            <div class="success-checkmark" id="successCheckmark">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="checkmark-check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+        </div>
+        
+        <!-- Caja de respuesta para mostrar mensajes de éxito/error -->
+        <div class="response-container" id="responseContainer">
+            <div class="response-box" id="responseBox">
+                <h3 id="responseTitle"></h3>
+                <div class="json-response" id="jsonResponse"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // La URL de tu Edge Function.
+        const EDGE_FUNCTION_URL = 'https://bhnilgmmzedmhhmdasrn.supabase.co/functions/v1/register-user';
+
+        const registroForm = document.getElementById('registroForm');
+        const loadingDiv = document.getElementById('loading');
+        const successCheckmarkDiv = document.getElementById('successCheckmark');
+        const responseBox = document.getElementById('responseBox');
+        const responseTitle = document.getElementById('responseTitle');
+        const jsonResponseDiv = document.getElementById('jsonResponse');
+        
+        // Función para mostrar mensajes de respuesta en la caja dedicada
+        function showResponse(success, title, message) {
+            loadingDiv.style.display = 'none';
+            successCheckmarkDiv.style.display = 'none';
+            
+            if (success) {
+                responseBox.classList.remove('error');
+                responseTitle.style.color = '#00ff80';
+            } else {
+                responseBox.classList.add('error');
+                responseTitle.style.color = '#ff0000';
+            }
+            responseTitle.textContent = title;
+            jsonResponseDiv.textContent = message;
+            responseBox.style.display = 'block';
+        }
+
+        registroForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            responseBox.style.display = 'none';
+            loadingDiv.style.display = 'block';
+            
+            const nombre = document.getElementById('nombre').value;
+            const telefono = document.getElementById('telefono').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const dato_extra = document.querySelector('input[name="dato_extra"]').value;
+
+            // Validar campos antes de enviar la solicitud
+            if (!nombre || !telefono || !email || !password) {
+                showResponse(false, 'Error de Validación', 'Por favor, completa todos los campos del formulario.');
+                return;
+            }
+            
+            try {
+                // Enviar todos los datos al Edge Function
+                const response = await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Access-Control-Allow-Origin': '*' 
+                    },
+                    body: JSON.stringify({
+                        nombre,
+                        telefono,
+                        email,
+                        password,
+                        dato_extra
+                    }),
+                    credentials: 'omit'
+                });
+                
+                if (response.ok) {
+                    // Si el Edge Function responde con éxito, mostrar el mensaje de éxito y redirigir
+                    successCheckmarkDiv.style.display = 'block';
+                    showResponse(true, 'Registro Exitoso', 'Puedes iniciar sesión.');
+                    registroForm.reset();
+                    
+                    setTimeout(() => {
+                        window.location.href = 'https://vps.triexpertservice.com';
+                    }, 3000);
+
+                } else {
+                    // Manejar errores si el Edge Function devuelve un error
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Error desconocido del servidor.');
+                }
+            } catch (error) {
+                console.error('Error de conexión:', error);
+                showResponse(false, 'Error de Conexión', JSON.stringify({
+                    error: "No se pudo conectar con el servidor. Por favor, verifica tu conexión a Internet y que la función esté correctamente desplegada.",
+                    detalles: error.message
+                }, null, 2));
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
