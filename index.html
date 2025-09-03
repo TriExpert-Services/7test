@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VPS Triexpert Services</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -13,13 +14,32 @@
         }
 
         body {
-            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            background: #0f0c29;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow-x: hidden;
+            overflow: hidden;
+            position: relative;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            bottom: -50px; /* Posicionado en la parte inferior */
+            right: -50px; /* Posicionado a la derecha */
+            width: 50vw; /* El ancho es el 50% del viewport */
+            height: 50vh; /* La altura es el 50% del viewport */
+            z-index: -2;
+        }
+        
+        @media (max-width: 768px) {
+            #bg-canvas {
+                bottom: -25px;
+                right: -25px;
+                width: 70vw;
+                height: 70vh;
+            }
         }
 
         .container {
@@ -28,6 +48,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            z-index: 1;
         }
 
         .header {
@@ -338,6 +359,8 @@
     </style>
 </head>
 <body>
+    <canvas id="bg-canvas"></canvas>
+
     <div class="glow-circle circle1"></div>
     <div class="glow-circle circle2"></div>
 
@@ -412,6 +435,81 @@
         const responseTitle = document.getElementById('responseTitle');
         const jsonResponseDiv = document.getElementById('jsonResponse');
         
+        // --- Three.js Global Variable setup ---
+        let scene, camera, renderer, globe;
+        let mouseX = 0, mouseY = 0;
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+        // --- End of Three.js Global Variable setup ---
+        
+        // --- Three.js Initialization ---
+        function initThree() {
+            // Set up scene, camera, and renderer
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.position.z = 2;
+
+            // Create the rotating sphere (the 'world')
+            const geometry = new THREE.IcosahedronGeometry(0.5, 5); // Esfera más pequeña
+            const material = new THREE.MeshPhysicalMaterial({
+                color: 0x00aaff,
+                emissive: 0x00f7ff,
+                emissiveIntensity: 0.5,
+                metalness: 0.5,
+                roughness: 0.1,
+                clearcoat: 1,
+                clearcoatRoughness: 0.1,
+                reflectivity: 0.5
+            });
+            globe = new THREE.Mesh(geometry, material);
+            scene.add(globe);
+
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 5); // soft white light
+            scene.add(ambientLight);
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 2);
+            directionalLight.position.set(5, 5, 5).normalize();
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0x00ff80, 5, 100);
+            pointLight.position.set(2, 2, 2);
+            scene.add(pointLight);
+
+            // Event listeners for mouse interaction and window resize
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+            window.addEventListener('resize', onWindowResize, false);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * 0.002;
+            mouseY = (event.clientY - windowHalfY) * 0.002;
+        }
+
+        function onWindowResize() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+            windowHalfX = width / 2;
+            windowHalfY = height / 2;
+        }
+        
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Rotate the globe based on mouse position
+            globe.rotation.y += (mouseX * 0.5 - globe.rotation.y) * 0.05;
+            globe.rotation.x += (mouseY * 0.5 - globe.rotation.x) * 0.05;
+            globe.rotation.y += 0.002; // Constant rotation
+
+            renderer.render(scene, camera);
+        }
+        // --- End of Three.js Initialization ---
+
         // Función para mostrar mensajes de respuesta en la caja dedicada
         function showResponse(success, title, message) {
             loadingDiv.style.display = 'none';
@@ -449,7 +547,7 @@
             
             try {
                 // Enviar todos los datos al Edge Function
-                const response = await fetch(EDGE_FUNCTION_URL, {
+                await fetch(EDGE_FUNCTION_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -464,31 +562,23 @@
                     credentials: 'omit'
                 });
                 
-                if (response.ok) {
-                    // Si el Edge Function responde con éxito, mostrar el mensaje de éxito y redirigir
-                    successCheckmarkDiv.style.display = 'block';
-                    showResponse(true, 'Registro Exitoso', 'Puedes iniciar sesión.');
-                    registroForm.reset();
-                    
-                    setTimeout(() => {
-                        window.location.href = 'https://vps.triexpertservice.com';
-                    }, 3000);
-
-                } else {
-                    // Manejar errores si el Edge Function devuelve un error
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Error desconocido del servidor.');
-                }
+                // Si la solicitud llega a este punto, significa que se envió correctamente.
+                // Redirige sin necesidad de verificar la respuesta.
+                window.location.href = 'https://vps.triexpertservice.com';
+                
             } catch (error) {
-                console.error('Error de conexión:', error);
-                showResponse(false, 'Error de Conexión', JSON.stringify({
-                    error: "No se pudo conectar con el servidor. Por favor, verifica tu conexión a Internet y que la función esté correctamente desplegada.",
-                    detalles: error.message
-                }, null, 2));
+                // Muestra un mensaje de error si la solicitud no pudo ser enviada
+                showResponse(false, 'Error', 'Intenta más tarde.');
             } finally {
                 loadingDiv.style.display = 'none';
             }
         });
+        
+        // Initialize the Three.js scene when the window loads
+        window.onload = function() {
+            initThree();
+            animate();
+        };
     </script>
 </body>
 </html>
