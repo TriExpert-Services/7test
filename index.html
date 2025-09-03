@@ -56,6 +56,7 @@
             margin-bottom: 30px;
             color: #00f7ff;
             text-shadow: 0 0 10px rgba(0, 247, 255, 0.7);
+            cursor: grab;
         }
 
         .header h1 {
@@ -86,6 +87,7 @@
             transform-style: preserve-3d;
             perspective: 1000px;
             animation: float 6s ease-in-out infinite;
+            cursor: grab;
         }
 
         @keyframes float {
@@ -186,6 +188,7 @@
             max-width: 600px;
             margin-top: 20px;
             animation: fadeIn 0.5s ease-in-out forwards;
+            cursor: grab;
         }
         
         .response-box {
@@ -415,7 +418,7 @@
         </div>
         
         <!-- Caja de respuesta para mostrar mensajes de éxito/error -->
-        <div class="response-container" id="responseContainer">
+        <div class="response-container">
             <div class="response-box" id="responseBox">
                 <h3 id="responseTitle"></h3>
                 <div class="json-response" id="jsonResponse"></div>
@@ -571,6 +574,72 @@
                 showResponse(false, 'Error', 'Intenta más tarde.');
             } finally {
                 loadingDiv.style.display = 'none';
+            }
+        });
+        
+        // Drag and drop functionality
+        const draggableItems = [document.querySelector('.container'), document.querySelector('.response-container')];
+
+        draggableItems.forEach(item => {
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+            
+            item.addEventListener("mousedown", dragStart);
+            item.addEventListener("mouseup", dragEnd);
+            item.addEventListener("mousemove", drag);
+            item.addEventListener("touchstart", dragStart);
+            item.addEventListener("touchend", dragEnd);
+            item.addEventListener("touchmove", drag);
+            
+            function dragStart(e) {
+                if (e.target !== item && !item.contains(e.target)) {
+                    return;
+                }
+                
+                if (e.type === "touchstart") {
+                    initialX = e.touches[0].clientX - xOffset;
+                    initialY = e.touches[0].clientY - yOffset;
+                } else {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                }
+                
+                isDragging = true;
+                item.style.cursor = 'grabbing';
+            }
+            
+            function dragEnd(e) {
+                initialX = currentX;
+                initialY = currentY;
+                isDragging = false;
+                item.style.cursor = 'grab';
+            }
+            
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    if (e.type === "touchmove") {
+                        currentX = e.touches[0].clientX - initialX;
+                        currentY = e.touches[0].clientY - initialY;
+                    } else {
+                        currentX = e.clientX - initialX;
+                        currentY = e.clientY - initialY;
+                    }
+                    
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    
+                    setTranslate(currentX, currentY, item);
+                }
+            }
+            
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
             }
         });
         
